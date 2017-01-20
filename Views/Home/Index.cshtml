@@ -1,0 +1,23 @@
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+
+
+<h2>@ViewData["Title"].</h2>
+<h3>@ViewData["Message"]</h3>
+
+<!--<img src="images/Photo1.jpg" alt="Sample Photo"  width="300px"/>
+
+<p>Some text here...</p>-->
+
+<form class="form-group" method="post" asp-action="Index" asp-controller="Home" enctype="multipart/form-data">
+    <span class="btn btn-primary btn-file">
+        Browse <input type="file" name="files" multiple>
+    </span>
+    <!--<input type="file" name="files" multiple class="btn btn-primary"/>-->
+    <input type="submit" value="Upload" class="btn btn-primary"/>
+</form>
+
+
+<img src=@ViewData["fileName"] alt="Sample Photo"  width="300px"/>
