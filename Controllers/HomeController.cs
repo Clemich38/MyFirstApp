@@ -7,6 +7,10 @@ using System.IO;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json;
+using System.Collections;
+
+using MyFirstApp.ViewModels;
 
 using ImageSharp;
 using ImageSharp.Formats;
@@ -19,64 +23,151 @@ namespace MyFirstApp.Controllers
         private IHostingEnvironment _environment;
         private List<String> list = new List<String>();
 
+
         public HomeController(IHostingEnvironment environment)
         {
             _environment = environment;
         }
 
         public IActionResult Index()
-        {
-            return View();
+        {   
+            // Create the best view model ever
+            var viewModel = new ImageModel
+            {
+                ImageName = "No Image Yet",
+                UploadPath = "/uploads",
+                ImagePath = "No Image Yet",
+                ImageWidth = 100,
+                ImageHeight = 100,
+            };
+
+            HttpContext.Session.SetObjectAsJson("ImageModel", viewModel);
+
+            return View(viewModel);
         }
 
+
         [HttpPost]
-        public async Task<IActionResult> Index(ICollection<IFormFile> files)
+        public IActionResult Upload(ICollection<IFormFile> files)
         {
+            // Retreive the model
+            var viewModel = HttpContext.Session.GetObjectFromJson<ImageModel>("ImageModel");
 
             Configuration.Default.AddImageFormat(new JpegFormat());
 
-            var uploads = Path.Combine(_environment.WebRootPath, "uploads");
+            string uplaodPath = Path.Combine(_environment.WebRootPath, "uploads");
             foreach (var file in files)
             {
                 if (file.Length > 0)
                 {
-                    using (var input = System.IO.File.Open(Path.Combine(uploads, file.FileName), FileMode.Create))
+                    string imageName = file.FileName;
+                    using (var input = System.IO.File.Open(Path.Combine(uplaodPath, imageName), FileMode.Create))
                     {
                         // await file.CopyToAsync(input);
                         file.CopyTo(input);
-                        ViewData["fileName"] = Path.Combine("uploads", file.FileName);
-                    }
+                        viewModel.ImageName = imageName;
+                        viewModel.ImagePath = Path.Combine(viewModel.UploadPath, imageName);
 
-                    using (var input = System.IO.File.OpenRead(Path.Combine(uploads, file.FileName)))
-                    {
-                        var image = new Image(input)
-                            .Resize(new ResizeOptions
-                            {
-                                Size = new Size(100, 100),
-                                Mode = ResizeMode.Max
-                            });
 
-                        image.ExifProfile = null;
-                        image.Quality = 75;
-
-                        using (var output = System.IO.File.OpenWrite(Path.Combine(uploads, "ret.jpg")))
+                        using (var inputret = System.IO.File.Open(Path.Combine(uplaodPath, "ret.jpg"), FileMode.Create))
                         {
-                            image.Save(output);
-                            ViewData["fileNameRet"] = Path.Combine("uploads", "ret.jpg");
+                            // await file.CopyToAsync(input);
+                            file.CopyTo(inputret);
+                            viewModel.RetImagePath = Path.Combine(viewModel.UploadPath, "ret.jpg");
                         }
                     }
-
-
                 }
             }
 
-            // // List the uploaded files
-            // foreach (string file in Directory.EnumerateFiles(uploads, "*" , SearchOption.AllDirectories))
-            // {   
-            //     list.Add(file);
-            // }
+            HttpContext.Session.SetObjectAsJson("ImageModel", viewModel);
 
-            return View();
+            return View("Index", viewModel);
+        }
+
+        public IActionResult resize(int width, int height)
+        {
+            // Retreive the model
+            var viewModel = HttpContext.Session.GetObjectFromJson<ImageModel>("ImageModel");
+            
+            viewModel.ImageWidth = width;
+            viewModel.ImageHeight = height;
+
+            string uplaodPath = Path.Combine(_environment.WebRootPath, "uploads");
+            using (var input = System.IO.File.OpenRead(Path.Combine(uplaodPath, viewModel.ImageName)))
+            {
+                var image = new Image(input)
+                    .Resize(new ResizeOptions
+                    {
+                        Size = new Size(viewModel.ImageWidth, viewModel.ImageHeight),
+                        Mode = ResizeMode.Max
+                    });
+                    
+
+                image.ExifProfile = null;
+                image.Quality = 75;
+
+                using (var output = System.IO.File.OpenWrite(Path.Combine(uplaodPath, "ret.jpg")))
+                {
+                    image.Save(output);
+                }
+            }
+
+            HttpContext.Session.SetObjectAsJson("ImageModel", viewModel);
+
+            return View("Index", viewModel);
+        }
+
+        public IActionResult filter(int id)
+        {
+            // Retreive the model
+            var viewModel = HttpContext.Session.GetObjectFromJson<ImageModel>("ImageModel");
+            
+            Image image = null;
+
+            string uplaodPath = Path.Combine(_environment.WebRootPath, "uploads");
+            using (var input = System.IO.File.OpenRead(Path.Combine(uplaodPath, "ret.jpg")))
+            {
+                image = new Image(input);
+                
+                image.Grayscale();
+                image.ExifProfile = null;
+                image.Quality = 75;
+            }
+                
+            using (var output = System.IO.File.OpenWrite(Path.Combine(uplaodPath, "ret.jpg")))
+            {
+                image.Save(output);
+            }
+
+            HttpContext.Session.SetObjectAsJson("ImageModel", viewModel);
+
+            return View("Index", viewModel);
+        }
+        
+        public IActionResult rotate()
+        {
+            // Retreive the model
+            var viewModel = HttpContext.Session.GetObjectFromJson<ImageModel>("ImageModel");
+            
+            Image image = null;
+
+            string uplaodPath = Path.Combine(_environment.WebRootPath, "uploads");
+            using (var input = System.IO.File.OpenRead(Path.Combine(uplaodPath, "ret.jpg")))
+            {
+                image = new Image(input);
+                image.Rotate(90);
+                    
+                image.ExifProfile = null;
+                image.Quality = 75;
+            }
+            using (var output = System.IO.File.OpenWrite(Path.Combine(uplaodPath, "ret.jpg")))
+            {
+                image.Save(output);
+            }
+
+            HttpContext.Session.SetObjectAsJson("ImageModel", viewModel);
+
+            return View("Index", viewModel);
         }
 
         public IActionResult About()
@@ -96,6 +187,23 @@ namespace MyFirstApp.Controllers
         public IActionResult Error()
         {
             return View();
+        }
+
+    }
+
+
+    public static class SessionExtensions
+    {
+        public static void SetObjectAsJson(this ISession session, string key, object value)
+        {
+            session.SetString(key, JsonConvert.SerializeObject(value));
+        }
+
+        public static T GetObjectFromJson<T>(this ISession session, string key)
+        {
+            var value = session.GetString(key);
+
+            return value == null ? default(T) : JsonConvert.DeserializeObject<T>(value);
         }
     }
 }

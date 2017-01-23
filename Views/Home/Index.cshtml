@@ -1,3 +1,4 @@
+@model MyFirstApp.ViewModels.ImageModel
 @{
     ViewData["Title"] = "Home Page";
 }
@@ -11,7 +12,7 @@
 
 <p>Some text here...</p>-->
 
-<form class="form-group" method="post" asp-action="Index" asp-controller="Home" enctype="multipart/form-data">
+<form class="form-group" method="post" asp-action="Upload" asp-controller="Home" enctype="multipart/form-data">
     <span class="btn btn-primary btn-file">
         Browse <input type="file" name="files" multiple>
     </span>
@@ -19,6 +20,29 @@
     <input type="submit" value="Upload" class="btn btn-primary"/>
 </form>
 
+<form class="form-group" method="post" asp-action="resize" asp-controller="Home" enctype="multipart/form-data">
+    <input type="number" name="width" value=@Model.ImageWidth multiple class="btn btn-primary"/>
+    <input type="number" name="height" value=@Model.ImageHeight multiple class="btn btn-primary"/>
+    <input type="submit" value="Resize" class="btn btn-primary"/>
+</form>
 
-<img src=@ViewData["fileName"] alt="Sample Photo"  width="300px"/>
-<img src=@ViewData["fileNameRet"] alt="Sample Photo"/>
+<form class="form-group" method="post" asp-action="filter" asp-controller="Home" enctype="multipart/form-data">
+    <input type="submit" value="Black & White" class="btn btn-primary"/>
+</form>
+
+<form class="form-group" method="post" asp-action="rotate" asp-controller="Home" enctype="multipart/form-data">
+    <input type="submit" value="Rotate" class="btn btn-primary"/>
+</form>
+
+
+
+<img src=@Model.ImagePath alt="Sample Photo"  width="300px"/>
+<img src=@Model.RetImagePath alt="Sample Photo"  width="300px"/>
+
+<p>@Model.ImageName</p>
+<p>@Model.ImagePath</p>
+<p>@Model.RetImagePath</p>
+<p>@Model.UploadPath</p>
+<p>@Model.ImageWidth</p>
+<p>@Model.ImageHeight</p>
+<p>@Model.ImageAngle</p>
