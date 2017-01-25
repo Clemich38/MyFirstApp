@@ -13,12 +13,13 @@
 <p>Some text here...</p>-->
 
 <form class="form-group" method="post" asp-action="Upload" asp-controller="Home" enctype="multipart/form-data">
-    <span class="btn btn-primary btn-file btn-sm">
+    <span class="btn btn-info btn-file btn-sm">
         Browse <input type="file" name="files" multiple>
     </span>
     <!--<input type="file" name="files" multiple class="btn btn-primary"/>-->
-    <input type="submit" value="Upload" class="btn btn-primary btn-sm"/>
+    <input type="submit" value="Upload" class="btn btn-info btn-sm"/>
 </form>
+
 
 <!--<form class="form-group" method="post" asp-action="resize" asp-controller="Home" enctype="multipart/form-data">
     <input type="number" name="width" value=@Model.ImageWidth multiple class="btn btn-primary"/>
@@ -77,6 +78,7 @@
                         <option value=2>Lomograph</option>
                         <option value=3>Polaroid</option>
                         <option value=4>Sepia</option>
+                        <option value=5>Kodachrome</option>
                     </select>
                 </div>
             </div>
@@ -89,8 +91,13 @@
     <div class="col-sm-6" align="center">
         <img src=@Model.ImagePath alt="Sample Photo"  width="300px"/>
     </div>
-    <div id="partial" class="col-sm-6" align="center">
-        @await Component.InvokeAsync("EditedImage", new {})
+    <div class="col-sm-6" align="center">
+        <div id="partial">
+            @await Component.InvokeAsync("EditedImage", new {})
+        </div>
+        <form class="form-group" method="get" asp-action="Download" asp-controller="Home" enctype="multipart/form-data">
+            <input type="submit" value="Download" class="btn btn-info btn-sm"/>
+        </form>
     </div>
 </div>
 
@@ -98,8 +105,8 @@
 <script src="@Url.Content("/lib/jquery/dist/jquery.min.js")" type="text/javascript"></script>
 <script type="text/javascript">
  
-    $('#brigthnessPlus').click(function() {
-        $('#partial').load('/Home/filter', {type: 1, value: +1});
+    $('#download').click(function() {
+        $('#partial').load('/Home/download');
     })
     $('#brigthnessMinus').click(function() {
         $('#partial').load('/Home/filter', {type: 1, value: -1});

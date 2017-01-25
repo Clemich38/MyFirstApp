@@ -68,6 +68,10 @@ namespace MyFirstApp.Controllers
                         viewModel.ImageName = imageName;
                         viewModel.ImagePath = Path.Combine(viewModel.UploadPath, imageName);
 
+                        var image = new Image(input);
+                        viewModel.ImageHeight = image.Height;
+                        viewModel.ImageWidth = image.Width;
+
 
                         using (var inputret = System.IO.File.Open(Path.Combine(uplaodPath, "ret.jpg"), FileMode.Create))
                         {
@@ -80,10 +84,24 @@ namespace MyFirstApp.Controllers
             }
 
 
+
+
             HttpContext.Session.SetObjectAsJson("ImageModel", viewModel);
 
             return View("Index", viewModel);
         }
+
+        [HttpGet]  
+        public FileResult Download()  
+        { 
+            // Retreive the model
+            var viewModel = HttpContext.Session.GetObjectFromJson<ImageModel>("ImageModel");
+
+            string uplaodPath = Path.Combine(_environment.WebRootPath, "uploads");
+            byte[] fileBytes = System.IO.File.ReadAllBytes(Path.Combine(uplaodPath, "ret.jpg"));
+            string fileName = "ret.jpg";
+            return File(fileBytes, MimeKit.MimeTypes.GetMimeType(fileName), fileName); 
+        }  
 
         public IActionResult resize(int width, int height)
         {
@@ -117,34 +135,6 @@ namespace MyFirstApp.Controllers
 
             return View("Index", viewModel);
         }
-
-        public IActionResult blackWhite(int id)
-        {
-            // Retreive the model
-            var viewModel = HttpContext.Session.GetObjectFromJson<ImageModel>("ImageModel");
-            
-            Image image = null;
-
-            string uplaodPath = Path.Combine(_environment.WebRootPath, "uploads");
-            using (var input = System.IO.File.OpenRead(Path.Combine(uplaodPath, "ret.jpg")))
-            {
-                image = new Image(input);
-                
-                image.Grayscale();
-                image.ExifProfile = null;
-                image.Quality = 75;
-            }
-                
-            using (var output = System.IO.File.OpenWrite(Path.Combine(uplaodPath, "ret.jpg")))
-            {
-                image.Save(output);
-            }
-
-            HttpContext.Session.SetObjectAsJson("ImageModel", viewModel);
-
-            return View("Index", viewModel);
-        }
-        
 
         
 
@@ -190,6 +180,7 @@ namespace MyFirstApp.Controllers
                     case 2: image.Lomograph(); break;
                     case 3: image.Polaroid(); break;
                     case 4: image.Sepia(); break;
+                    case 5: image.Kodachrome(); break;
 
 
                 }
