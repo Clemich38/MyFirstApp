@@ -13,36 +13,125 @@
 <p>Some text here...</p>-->
 
 <form class="form-group" method="post" asp-action="Upload" asp-controller="Home" enctype="multipart/form-data">
-    <span class="btn btn-primary btn-file">
+    <span class="btn btn-primary btn-file btn-sm">
         Browse <input type="file" name="files" multiple>
     </span>
     <!--<input type="file" name="files" multiple class="btn btn-primary"/>-->
-    <input type="submit" value="Upload" class="btn btn-primary"/>
+    <input type="submit" value="Upload" class="btn btn-primary btn-sm"/>
 </form>
 
-<form class="form-group" method="post" asp-action="resize" asp-controller="Home" enctype="multipart/form-data">
+<!--<form class="form-group" method="post" asp-action="resize" asp-controller="Home" enctype="multipart/form-data">
     <input type="number" name="width" value=@Model.ImageWidth multiple class="btn btn-primary"/>
     <input type="number" name="height" value=@Model.ImageHeight multiple class="btn btn-primary"/>
     <input type="submit" value="Resize" class="btn btn-primary"/>
 </form>
 
-<form class="form-group" method="post" asp-action="filter" asp-controller="Home" enctype="multipart/form-data">
+<form class="form-group" method="post" asp-action="blackWhite" asp-controller="Home" enctype="multipart/form-data">
     <input type="submit" value="Black & White" class="btn btn-primary"/>
-</form>
+</form>-->
 
-<form class="form-group" method="post" asp-action="rotate" asp-controller="Home" enctype="multipart/form-data">
-    <input type="submit" value="Rotate" class="btn btn-primary"/>
-</form>
+<div class="panel panel-default">
+    <div class="panel-heading">Adjustments</div>
+    <div class="panel-body">
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-1">
+                    Brigthness
+                </div>
+                <div class="col-sm-3">
+                    <input id="brigthnessSlider" type="range" name="slider1" min="-100" max="100">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-1">
+                    Contrast
+                </div>
+                <div class="col-sm-3">
+                    <input id="contrastSlider" type="range" name="slider1" min="-100" max="100">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-1">
+                    Saturation
+                </div>
+                <div class="col-sm-3">
+                    <input id="saturationSlider" type="range" name="slider1" min="-100" max="100">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-1">
+                    Rotate
+                </div>
+                <div class="col-sm-3">
+                    <input id="rotateSlider" type="range" name="slider1" min="0" max="270" step="90" value=@Model.ImageAngle>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-1">
+                    Filter
+                </div>
+                <div class="col-sm-3">
+                    <select class="form-control" id="filterSelect">
+                        <option value=0>No filter</option>
+                        <option value=1>Grayscale</option>
+                        <option value=2>Lomograph</option>
+                        <option value=3>Polaroid</option>
+                        <option value=4>Sepia</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+</div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-sm-6" align="center">
+        <img src=@Model.ImagePath alt="Sample Photo"  width="300px"/>
+    </div>
+    <div id="partial" class="col-sm-6" align="center">
+        @await Component.InvokeAsync("EditedImage", new {})
+    </div>
+</div>
 
 
+<script src="@Url.Content("/lib/jquery/dist/jquery.min.js")" type="text/javascript"></script>
+<script type="text/javascript">
+ 
+    $('#brigthnessPlus').click(function() {
+        $('#partial').load('/Home/filter', {type: 1, value: +1});
+    })
+    $('#brigthnessMinus').click(function() {
+        $('#partial').load('/Home/filter', {type: 1, value: -1});
+    })
+ 
+    $('#contrastPlus').click(function() {
+        $('#partial').load('/Home/filter', {type: 2, value: +1});
+    })
+    $('#contrastMinus').click(function() {
+        $('#partial').load('/Home/filter', {type: 2, value: -1});
+    })
 
-<img src=@Model.ImagePath alt="Sample Photo"  width="300px"/>
-<img src=@Model.RetImagePath alt="Sample Photo"  width="300px"/>
+    $('#brigthnessSlider').change(function () {
+        $('#partial').load('/Home/filter', {type: 1, value: $(this).val()});
+    });
+    
+    $('#contrastSlider').change(function () {
+        $('#partial').load('/Home/filter', {type: 2, value: $(this).val()});
+    });
+    
+    $('#rotateSlider').change(function () {
+        $('#partial').load('/Home/filter', {type: 3, value: $(this).val()});
+    });
+    
+    $('#filterSelect').change(function () {
+        $('#partial').load('/Home/filter', {type: 4, value: $(this).val()});
+    });
+    
+    $('#saturationSlider').change(function () {
+        $('#partial').load('/Home/filter', {type: 5, value: $(this).val()});
+    });
 
-<p>@Model.ImageName</p>
-<p>@Model.ImagePath</p>
-<p>@Model.RetImagePath</p>
-<p>@Model.UploadPath</p>
-<p>@Model.ImageWidth</p>
-<p>@Model.ImageHeight</p>
-<p>@Model.ImageAngle</p>
+
+ 
+</script>

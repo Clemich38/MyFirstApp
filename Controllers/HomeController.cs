@@ -79,6 +79,7 @@ namespace MyFirstApp.Controllers
                 }
             }
 
+
             HttpContext.Session.SetObjectAsJson("ImageModel", viewModel);
 
             return View("Index", viewModel);
@@ -117,7 +118,7 @@ namespace MyFirstApp.Controllers
             return View("Index", viewModel);
         }
 
-        public IActionResult filter(int id)
+        public IActionResult blackWhite(int id)
         {
             // Retreive the model
             var viewModel = HttpContext.Session.GetObjectFromJson<ImageModel>("ImageModel");
@@ -144,22 +145,59 @@ namespace MyFirstApp.Controllers
             return View("Index", viewModel);
         }
         
-        public IActionResult rotate()
+
+        
+
+        public IActionResult filter(int type, int value)
         {
             // Retreive the model
-            var viewModel = HttpContext.Session.GetObjectFromJson<ImageModel>("ImageModel");
+            ImageModel viewModel = HttpContext.Session.GetObjectFromJson<ImageModel>("ImageModel");
             
             Image image = null;
 
             string uplaodPath = Path.Combine(_environment.WebRootPath, "uploads");
-            using (var input = System.IO.File.OpenRead(Path.Combine(uplaodPath, "ret.jpg")))
+            using (var input = System.IO.File.OpenRead(Path.Combine(uplaodPath, viewModel.ImageName)))
             {
                 image = new Image(input);
-                image.Rotate(90);
+
+                switch(type)
+                {
+                    case 1: //Brightness
+                        viewModel.ImageBrightnessValue = value;
+                        break;
+                    case 2: //Contrast
+                        viewModel.ImageContrastValue = value;
+                        break;
+                    case 3: //Rotate
+                        viewModel.ImageAngle = value;
+                        break;
+                    case 4: //filter
+                        viewModel.ImageFilterType = value;
+                        break;
+                    case 5: //filter
+                        viewModel.ImageSaturationValue = value;
+                        break;
+                }
                     
+                image.Brightness(viewModel.ImageBrightnessValue);
+                image.Contrast(viewModel.ImageContrastValue);
+                image.Saturation(viewModel.ImageSaturationValue);
+                image.Rotate(viewModel.ImageAngle);
+
+                switch(viewModel.ImageFilterType)
+                {
+                    case 1: image.Grayscale(); break;
+                    case 2: image.Lomograph(); break;
+                    case 3: image.Polaroid(); break;
+                    case 4: image.Sepia(); break;
+
+
+                }
+
                 image.ExifProfile = null;
-                image.Quality = 75;
+                image.Quality = 100;
             }
+
             using (var output = System.IO.File.OpenWrite(Path.Combine(uplaodPath, "ret.jpg")))
             {
                 image.Save(output);
@@ -167,7 +205,7 @@ namespace MyFirstApp.Controllers
 
             HttpContext.Session.SetObjectAsJson("ImageModel", viewModel);
 
-            return View("Index", viewModel);
+            return ViewComponent("EditedImage", viewModel);
         }
 
         public IActionResult About()
