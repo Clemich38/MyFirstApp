@@ -37,8 +37,8 @@ namespace MyFirstApp.Controllers
                 ImageName = "No Image Yet",
                 UploadPath = "/uploads",
                 ImagePath = "No Image Yet",
-                ImageWidth = 100,
-                ImageHeight = 100,
+                ImageWidth = 0,
+                ImageHeight = 0,
             };
 
             HttpContext.Session.SetObjectAsJson("ImageModel", viewModel);
@@ -68,10 +68,6 @@ namespace MyFirstApp.Controllers
                         viewModel.ImageName = imageName;
                         viewModel.ImagePath = Path.Combine(viewModel.UploadPath, imageName);
 
-                        var image = new Image(input);
-                        viewModel.ImageHeight = image.Height;
-                        viewModel.ImageWidth = image.Width;
-
 
                         using (var inputret = System.IO.File.Open(Path.Combine(uplaodPath, "ret.jpg"), FileMode.Create))
                         {
@@ -80,6 +76,14 @@ namespace MyFirstApp.Controllers
                             viewModel.RetImagePath = Path.Combine(viewModel.UploadPath, "ret.jpg");
                         }
                     }
+
+                    using (var input = System.IO.File.OpenRead(Path.Combine(uplaodPath, viewModel.ImageName)))
+                    {
+                        var image = new Image(input);
+                        viewModel.ImageHeight = image.Height;
+                        viewModel.ImageWidth = image.Width;
+                    }
+
                 }
             }
 

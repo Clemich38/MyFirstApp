@@ -3,14 +3,9 @@
     ViewData["Title"] = "Home Page";
 }
 
-
-
 <h2>@ViewData["Title"].</h2>
 <h3>@ViewData["Message"]</h3>
 
-<!--<img src="images/Photo1.jpg" alt="Sample Photo"  width="300px"/>
-
-<p>Some text here...</p>-->
 
 <form class="form-group" method="post" asp-action="Upload" asp-controller="Home" enctype="multipart/form-data">
     <span class="btn btn-info btn-file btn-sm">
@@ -20,16 +15,6 @@
     <input type="submit" value="Upload" class="btn btn-info btn-sm"/>
 </form>
 
-
-<!--<form class="form-group" method="post" asp-action="resize" asp-controller="Home" enctype="multipart/form-data">
-    <input type="number" name="width" value=@Model.ImageWidth multiple class="btn btn-primary"/>
-    <input type="number" name="height" value=@Model.ImageHeight multiple class="btn btn-primary"/>
-    <input type="submit" value="Resize" class="btn btn-primary"/>
-</form>
-
-<form class="form-group" method="post" asp-action="blackWhite" asp-controller="Home" enctype="multipart/form-data">
-    <input type="submit" value="Black & White" class="btn btn-primary"/>
-</form>-->
 
 <div class="panel panel-default">
     <div class="panel-heading">Adjustments</div>
@@ -80,6 +65,13 @@
                         <option value=4>Sepia</option>
                         <option value=5>Kodachrome</option>
                     </select>
+                </div>
+                <div class="col-sm-6">
+                    <form class="form-group" method="post" asp-action="resize" asp-controller="Home" enctype="multipart/form-data">
+                        <input type="number" name="width" value=@Model.ImageWidth multiple class="btn btn-default btn-sm"/>
+                        <input type="number" name="height" value=@Model.ImageHeight multiple class="btn btn-default btn-sm"/>
+                        <input type="submit" value="Resize" class="btn btn-default btn-sm"/>
+                    </form>
                 </div>
             </div>
         </div>
