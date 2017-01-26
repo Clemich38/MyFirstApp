@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
-using System.Collections;
 
 using MyFirstApp.ViewModels;
 
@@ -32,6 +31,8 @@ namespace MyFirstApp.Controllers
         public IActionResult Index()
         {   
             Configuration.Default.AddImageFormat(new JpegFormat());
+            Configuration.Default.AddImageFormat(new BipmapFormat());
+            Configuration.Default.AddImageFormat(new GifFormat());
 
             // Create the best view model ever
             var viewModel = new ImageModel
