@@ -16,11 +16,9 @@ namespace MyFirstApp.ViewComponents
 {
     public class EditedImageViewComponent : ViewComponent
     {
-        // private readonly ImageModel model;
 
         public EditedImageViewComponent()
         {
-            // model = mod;
         }
 
         public IViewComponentResult Invoke()
@@ -36,32 +34,6 @@ namespace MyFirstApp.ViewComponents
             return viewModel;
         }
         
-        // public IViewComponentResult brigthness(int value)
-        // {
-        //     // Retreive the model
-        //     ImageModel viewModel = HttpContext.Session.GetObjectFromJson<ImageModel>("ImageModel");
-            
-        //     viewModel.ImageEffectValue += value;
-        //     Image image = null;
-
-        //     string uplaodPath = Path.Combine(viewModel.AbsUploadPath, "uploads");
-        //     using (var input = System.IO.File.OpenRead(Path.Combine(uplaodPath, "ret.jpg")))
-        //     {
-        //         image = new Image(input);
-        //         image.Brightness(viewModel.ImageEffectValue);
-                    
-        //         image.ExifProfile = null;
-        //         image.Quality = 75;
-        //     }
-        //     using (var output = System.IO.File.OpenWrite(Path.Combine(uplaodPath, "ret.jpg")))
-        //     {
-        //         image.Save(output);
-        //     }
-
-        //     HttpContext.Session.SetObjectAsJson("ImageModel", viewModel);
-
-        //     return View(viewModel);
-        // }
     }
 
     public static class SessionExtensions

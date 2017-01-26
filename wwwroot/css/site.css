@@ -8,6 +8,7 @@ body {
 .body-content {
     padding-left: 15px;
     padding-right: 15px;
+    padding-top: 30px;
 }
 
 /* Set widths on the form inputs since otherwise they're 100% wide */
@@ -56,4 +57,13 @@ textarea {
     background: white;
     cursor: inherit;
     display: block;
+}
+
+.navbar-brand
+{
+    position: absolute;
+    width: 100%;
+    left: 0;
+    text-align: center;
+    margin:0 auto;
 }

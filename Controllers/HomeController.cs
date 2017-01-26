@@ -31,19 +31,38 @@ namespace MyFirstApp.Controllers
 
         public IActionResult Index()
         {   
+            Configuration.Default.AddImageFormat(new JpegFormat());
+
             // Create the best view model ever
             var viewModel = new ImageModel
             {
-                ImageName = "No Image Yet",
-                UploadPath = "/uploads",
-                ImagePath = "No Image Yet",
+                ImageName = "lena.jpg",
+                ImagePath = "/uploads/lena.jpg",
+                UploadPath = "/uploads/",
+                RetImageName = "ret.jpg",
+                RetImagePath = "/uploads/ret.jpg",
                 ImageWidth = 0,
                 ImageHeight = 0,
+                ImageBrightnessValue = 0,
+                ImageContrastValue = 0,
+                ImageAngle = 0,
+                ImageFilterType = 0,
+                ImageSaturationValue = 0,
             };
+            
+            string uplaodPath = Path.Combine(_environment.WebRootPath, "uploads");
+            System.IO.File.Copy(Path.Combine(uplaodPath, viewModel.ImageName), Path.Combine(uplaodPath, viewModel.RetImageName), true);
+ 
+            using (var input = System.IO.File.OpenRead(Path.Combine(uplaodPath, viewModel.ImageName)))
+                {
+                    var image = new Image(input);
+                    viewModel.ImageHeight = image.Height;
+                    viewModel.ImageWidth = image.Width;
+                }
 
             HttpContext.Session.SetObjectAsJson("ImageModel", viewModel);
 
-            return View(viewModel);
+            return Reset();
         }
 
 
@@ -66,14 +85,12 @@ namespace MyFirstApp.Controllers
                         // await file.CopyToAsync(input);
                         file.CopyTo(input);
                         viewModel.ImageName = imageName;
-                        viewModel.ImagePath = Path.Combine(viewModel.UploadPath, imageName);
+                        viewModel.ImagePath = viewModel.UploadPath + imageName;
 
-
-                        using (var inputret = System.IO.File.Open(Path.Combine(uplaodPath, "ret.jpg"), FileMode.Create))
+                        using (var inputret = System.IO.File.Open(Path.Combine(uplaodPath, viewModel.RetImageName), FileMode.Create))
                         {
                             // await file.CopyToAsync(input);
                             file.CopyTo(inputret);
-                            viewModel.RetImagePath = Path.Combine(viewModel.UploadPath, "ret.jpg");
                         }
                     }
 
@@ -82,17 +99,28 @@ namespace MyFirstApp.Controllers
                         var image = new Image(input);
                         viewModel.ImageHeight = image.Height;
                         viewModel.ImageWidth = image.Width;
+                        viewModel.ImageBrightnessValue = 0;
+                        viewModel.ImageContrastValue = 0;
+                        viewModel.ImageAngle = 0;
+                        viewModel.ImageFilterType = 0;
+                        viewModel.ImageSaturationValue = 0;
                     }
 
                 }
             }
 
-
-
-
             HttpContext.Session.SetObjectAsJson("ImageModel", viewModel);
 
             return View("Index", viewModel);
+        }
+
+
+        [HttpPost]
+        public IActionResult Reset()
+        {
+            ImageModel viewModel = new ImageModel();
+
+            return View("Index", processImage(0, 0, viewModel));
         }
 
         [HttpGet]  
@@ -102,8 +130,8 @@ namespace MyFirstApp.Controllers
             var viewModel = HttpContext.Session.GetObjectFromJson<ImageModel>("ImageModel");
 
             string uplaodPath = Path.Combine(_environment.WebRootPath, "uploads");
-            byte[] fileBytes = System.IO.File.ReadAllBytes(Path.Combine(uplaodPath, "ret.jpg"));
-            string fileName = "ret.jpg";
+            byte[] fileBytes = System.IO.File.ReadAllBytes(Path.Combine(uplaodPath, viewModel.RetImageName));
+            string fileName = viewModel.RetImageName;
             return File(fileBytes, MimeKit.MimeTypes.GetMimeType(fileName), fileName); 
         }  
 
@@ -129,7 +157,7 @@ namespace MyFirstApp.Controllers
                 image.ExifProfile = null;
                 image.Quality = 75;
 
-                using (var output = System.IO.File.OpenWrite(Path.Combine(uplaodPath, "ret.jpg")))
+                using (var output = System.IO.File.OpenWrite(Path.Combine(uplaodPath, viewModel.RetImageName)))
                 {
                     image.Save(output);
                 }
@@ -144,8 +172,15 @@ namespace MyFirstApp.Controllers
 
         public IActionResult filter(int type, int value)
         {
+            ImageModel viewModel = new ImageModel();
+
+            return ViewComponent("EditedImage", processImage(type, value, viewModel));
+        }
+
+        public ImageModel processImage(int type, int value, ImageModel viewModel)
+        {
             // Retreive the model
-            ImageModel viewModel = HttpContext.Session.GetObjectFromJson<ImageModel>("ImageModel");
+            viewModel = HttpContext.Session.GetObjectFromJson<ImageModel>("ImageModel");
             
             Image image = null;
 
@@ -156,6 +191,13 @@ namespace MyFirstApp.Controllers
 
                 switch(type)
                 {
+                    case 0: //Reset
+                        viewModel.ImageBrightnessValue = 0;
+                        viewModel.ImageContrastValue = 0;
+                        viewModel.ImageAngle = 0;
+                        viewModel.ImageFilterType = 0;
+                        viewModel.ImageSaturationValue = 0;
+                        break;
                     case 1: //Brightness
                         viewModel.ImageBrightnessValue = value;
                         break;
@@ -165,10 +207,10 @@ namespace MyFirstApp.Controllers
                     case 3: //Rotate
                         viewModel.ImageAngle = value;
                         break;
-                    case 4: //filter
+                    case 4: //Filter
                         viewModel.ImageFilterType = value;
                         break;
-                    case 5: //filter
+                    case 5: //Saturation
                         viewModel.ImageSaturationValue = value;
                         break;
                 }
@@ -185,22 +227,20 @@ namespace MyFirstApp.Controllers
                     case 3: image.Polaroid(); break;
                     case 4: image.Sepia(); break;
                     case 5: image.Kodachrome(); break;
-
-
                 }
 
                 image.ExifProfile = null;
                 image.Quality = 100;
             }
 
-            using (var output = System.IO.File.OpenWrite(Path.Combine(uplaodPath, "ret.jpg")))
+            using (var output = System.IO.File.OpenWrite(Path.Combine(uplaodPath, viewModel.RetImageName)))
             {
                 image.Save(output);
             }
 
             HttpContext.Session.SetObjectAsJson("ImageModel", viewModel);
 
-            return ViewComponent("EditedImage", viewModel);
+            return viewModel;
         }
 
         public IActionResult About()

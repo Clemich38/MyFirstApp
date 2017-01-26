@@ -3,8 +3,8 @@
     ViewData["Title"] = "Home Page";
 }
 
-<h2>@ViewData["Title"].</h2>
-<h3>@ViewData["Message"]</h3>
+<!--<h2>@ViewData["Title"].</h2>
+<h3>@ViewData["Message"]</h3>-->
 
 
 <form class="form-group" method="post" asp-action="Upload" asp-controller="Home" enctype="multipart/form-data">
@@ -25,7 +25,7 @@
                     Brigthness
                 </div>
                 <div class="col-sm-3">
-                    <input id="brigthnessSlider" type="range" name="slider1" min="-100" max="100">
+                    <input id="brigthnessSlider" type="range" name="slider1" min="-100" max="100" value=@Model.ImageBrightnessValue>
                 </div>
             </div>
             <div class="row">
@@ -33,7 +33,7 @@
                     Contrast
                 </div>
                 <div class="col-sm-3">
-                    <input id="contrastSlider" type="range" name="slider1" min="-100" max="100">
+                    <input id="contrastSlider" type="range" name="slider1" min="-100" max="100" value=@Model.ImageContrastValue>
                 </div>
             </div>
             <div class="row">
@@ -41,7 +41,7 @@
                     Saturation
                 </div>
                 <div class="col-sm-3">
-                    <input id="saturationSlider" type="range" name="slider1" min="-100" max="100">
+                    <input id="saturationSlider" type="range" name="slider1" min="-100" max="100" value=@Model.ImageSaturationValue>
                 </div>
             </div>
             <div class="row">
@@ -66,6 +66,8 @@
                         <option value=5>Kodachrome</option>
                     </select>
                 </div>
+                <div class="col-sm-2">
+                </div>
                 <div class="col-sm-6">
                     <form class="form-group" method="post" asp-action="resize" asp-controller="Home" enctype="multipart/form-data">
                         <input type="number" name="width" value=@Model.ImageWidth multiple class="btn btn-default btn-sm"/>
@@ -73,6 +75,11 @@
                         <input type="submit" value="Resize" class="btn btn-default btn-sm"/>
                     </form>
                 </div>
+            </div>
+            <div class="row">  
+                <form class="form-group" method="post" asp-action="Reset" asp-controller="Home" enctype="multipart/form-data">
+                    <input type="submit" value="Reset" class="btn btn-info btn-sm"/>
+                </form>
             </div>
         </div>
 </div>
@@ -100,8 +107,8 @@
     $('#download').click(function() {
         $('#partial').load('/Home/download');
     })
-    $('#brigthnessMinus').click(function() {
-        $('#partial').load('/Home/filter', {type: 1, value: -1});
+    $('#reset2').click(function() {
+        $('#partial').load('/Home/filter', {type: 0, value: 0});
     })
  
     $('#contrastPlus').click(function() {
