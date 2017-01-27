@@ -1,16 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Linq;
-using System.IO;
-using System.Threading.Tasks;
 using ImageEditionApp.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 
-using ImageSharp;
-using ImageSharp.Formats;
-using ImageSharp.Processing;
 
 namespace ImageEditionApp.ViewComponents
 {

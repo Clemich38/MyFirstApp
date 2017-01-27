@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using System;
 using System.IO;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Hosting;
@@ -213,7 +211,7 @@ namespace ImageEditionApp.Controllers
                     case 5: image.Kodachrome(); break;
                 }
 
-                if (viewModel.ImageResolution != 100)
+                if ((viewModel.ImageResolution != 100) || (type == 6))
                 {
                     IResampler resampler = new BicubicResampler();
                     viewModel.NewImageHeight = (int)Math.Floor((decimal)((viewModel.ImageHeight * viewModel.ImageResolution) / 100));
@@ -233,20 +231,6 @@ namespace ImageEditionApp.Controllers
             HttpContext.Session.SetObjectAsJson("ImageModel", viewModel);
 
             return viewModel;
-        }
-
-        public IActionResult About()
-        {
-            ViewData["Message"] = "Your application description page.";
-
-            return View();
-        }
-
-        public IActionResult Contact()
-        {
-            ViewData["Message"] = "Your contact page.";
-
-            return View();
         }
 
         public IActionResult Error()
