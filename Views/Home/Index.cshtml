@@ -68,11 +68,13 @@
                 <div class="col-sm-2">
                 </div>
                 <div class="col-sm-6">
-                    <form class="form-group" method="post" asp-action="resize" asp-controller="Home" enctype="multipart/form-data">
-                        <input type="number" name="width" value=@Model.ImageWidth multiple class="btn btn-default btn-sm"/>
-                        <input type="number" name="height" value=@Model.ImageHeight multiple class="btn btn-default btn-sm"/>
-                        <input type="submit" value="Resize" class="btn btn-default btn-sm"/>
-                    </form>
+                    <!--<form class="form-group" method="post" asp-action="resize" asp-controller="Home" enctype="multipart/form-data">-->
+                        <!--<input type="number" name="width" value=@Model.ImageWidth multiple class="btn btn-default btn-sm"/>
+                        <input type="number" name="height" value=@Model.ImageHeight multiple class="btn btn-default btn-sm"/>-->
+                        <input id="resolution" type="number" name="resolution" value=@Model.ImageResolution multiple class="btn btn-default btn-sm"/>
+                        <span> % </span>
+                        <input id="resize" type="submit" value="Resize" class="btn btn-default btn-sm"/>
+                    <!--</form>-->
                 </div>
             </div>
             <div class="row">  
@@ -88,6 +90,7 @@
 <div class="row">
     <div class="col-sm-6" align="center">
         <img src=@Model.ImagePath alt="Sample Photo"  width="300px"/>
+        <p>@Model.ImageWidth <span> x </span> @Model.ImageHeight</p>
     </div>
     <div class="col-sm-6" align="center">
         <div id="partial">
@@ -106,15 +109,8 @@
     $('#download').click(function() {
         $('#partial').load('/Home/download');
     })
-    $('#reset2').click(function() {
-        $('#partial').load('/Home/filter', {type: 0, value: 0});
-    })
- 
-    $('#contrastPlus').click(function() {
-        $('#partial').load('/Home/filter', {type: 2, value: +1});
-    })
-    $('#contrastMinus').click(function() {
-        $('#partial').load('/Home/filter', {type: 2, value: -1});
+    $('#resize').click(function() {
+        $('#partial').load('/Home/filter', {type: 6, value: $('#resolution').val()});
     })
 
     $('#brigthnessSlider').change(function () {

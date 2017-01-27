@@ -31,8 +31,9 @@ namespace MyFirstApp.Controllers
         public IActionResult Index()
         {   
             Configuration.Default.AddImageFormat(new JpegFormat());
-            Configuration.Default.AddImageFormat(new BipmapFormat());
+            Configuration.Default.AddImageFormat(new BmpFormat());
             Configuration.Default.AddImageFormat(new GifFormat());
+            Configuration.Default.AddImageFormat(new PngFormat());
 
             // Create the best view model ever
             var viewModel = new ImageModel
@@ -40,10 +41,15 @@ namespace MyFirstApp.Controllers
                 ImageName = "lena.jpg",
                 ImagePath = "/uploads/lena.jpg",
                 UploadPath = "/uploads/",
+                RawImageName = "raw.jpg",
                 RetImageName = "ret.jpg",
                 RetImagePath = "/uploads/ret.jpg",
+                ImageExtension = ".jpg",
                 ImageWidth = 0,
                 ImageHeight = 0,
+                NewImageWidth = 0,
+                NewImageHeight = 0,
+                ImageResolution = 100,
                 ImageBrightnessValue = 0,
                 ImageContrastValue = 0,
                 ImageAngle = 0,
@@ -59,6 +65,8 @@ namespace MyFirstApp.Controllers
                     var image = new Image(input);
                     viewModel.ImageHeight = image.Height;
                     viewModel.ImageWidth = image.Width;
+                    viewModel.NewImageHeight = image.Height;
+                    viewModel.NewImageWidth = image.Width;
                 }
 
             HttpContext.Session.SetObjectAsJson("ImageModel", viewModel);
@@ -80,17 +88,16 @@ namespace MyFirstApp.Controllers
             {
                 if (file.Length > 0)
                 {
-                    string imageName = file.FileName;
-                    using (var input = System.IO.File.Open(Path.Combine(uplaodPath, imageName), FileMode.Create))
+                    viewModel.ImageName = Path.ChangeExtension(viewModel.RawImageName,Path.GetExtension(file.FileName));
+                    viewModel.ImagePath = Path.Combine(viewModel.UploadPath, viewModel.ImageName);
+                    using (var input = System.IO.File.Open(Path.Combine(uplaodPath, viewModel.ImageName), FileMode.Create))
                     {
-                        // await file.CopyToAsync(input);
                         file.CopyTo(input);
-                        viewModel.ImageName = imageName;
-                        viewModel.ImagePath = viewModel.UploadPath + imageName;
+                        viewModel.RetImageName = Path.ChangeExtension(viewModel.RetImageName,Path.GetExtension(viewModel.ImageName));
+                        viewModel.RetImagePath = Path.ChangeExtension(viewModel.RetImagePath,Path.GetExtension(viewModel.ImageName));
 
                         using (var inputret = System.IO.File.Open(Path.Combine(uplaodPath, viewModel.RetImageName), FileMode.Create))
                         {
-                            // await file.CopyToAsync(input);
                             file.CopyTo(inputret);
                         }
                     }
@@ -100,6 +107,9 @@ namespace MyFirstApp.Controllers
                         var image = new Image(input);
                         viewModel.ImageHeight = image.Height;
                         viewModel.ImageWidth = image.Width;
+                        viewModel.NewImageHeight = image.Height;
+                        viewModel.NewImageWidth = image.Width;
+                        viewModel.ImageResolution = 100;
                         viewModel.ImageBrightnessValue = 0;
                         viewModel.ImageContrastValue = 0;
                         viewModel.ImageAngle = 0;
@@ -136,39 +146,6 @@ namespace MyFirstApp.Controllers
             return File(fileBytes, MimeKit.MimeTypes.GetMimeType(fileName), fileName); 
         }  
 
-        public IActionResult resize(int width, int height)
-        {
-            // Retreive the model
-            var viewModel = HttpContext.Session.GetObjectFromJson<ImageModel>("ImageModel");
-            
-            viewModel.ImageWidth = width;
-            viewModel.ImageHeight = height;
-
-            string uplaodPath = Path.Combine(_environment.WebRootPath, "uploads");
-            using (var input = System.IO.File.OpenRead(Path.Combine(uplaodPath, viewModel.ImageName)))
-            {
-                var image = new Image(input)
-                    .Resize(new ResizeOptions
-                    {
-                        Size = new Size(viewModel.ImageWidth, viewModel.ImageHeight),
-                        Mode = ResizeMode.Max
-                    });
-                    
-
-                image.ExifProfile = null;
-                image.Quality = 75;
-
-                using (var output = System.IO.File.OpenWrite(Path.Combine(uplaodPath, viewModel.RetImageName)))
-                {
-                    image.Save(output);
-                }
-            }
-
-            HttpContext.Session.SetObjectAsJson("ImageModel", viewModel);
-
-            return View("Index", viewModel);
-        }
-
         
 
         public IActionResult filter(int type, int value)
@@ -198,6 +175,9 @@ namespace MyFirstApp.Controllers
                         viewModel.ImageAngle = 0;
                         viewModel.ImageFilterType = 0;
                         viewModel.ImageSaturationValue = 0;
+                        viewModel.ImageResolution = 100;
+                        viewModel.NewImageHeight = viewModel.ImageHeight;
+                        viewModel.NewImageWidth = viewModel.ImageWidth;
                         break;
                     case 1: //Brightness
                         viewModel.ImageBrightnessValue = value;
@@ -214,6 +194,9 @@ namespace MyFirstApp.Controllers
                     case 5: //Saturation
                         viewModel.ImageSaturationValue = value;
                         break;
+                    case 6: //Resize
+                        viewModel.ImageResolution = value;
+                        break;
                 }
                     
                 image.Brightness(viewModel.ImageBrightnessValue);
@@ -228,6 +211,14 @@ namespace MyFirstApp.Controllers
                     case 3: image.Polaroid(); break;
                     case 4: image.Sepia(); break;
                     case 5: image.Kodachrome(); break;
+                }
+
+                if (viewModel.ImageResolution != 100)
+                {
+                    IResampler resampler = new BicubicResampler();
+                    viewModel.NewImageHeight = (int)Math.Floor((decimal)((viewModel.ImageHeight * viewModel.ImageResolution) / 100));
+                    viewModel.NewImageWidth = (int)Math.Floor((decimal)((viewModel.ImageWidth * viewModel.ImageResolution) / 100));
+                    image.Resize(viewModel.NewImageWidth, viewModel.NewImageHeight, resampler);
                 }
 
                 image.ExifProfile = null;
