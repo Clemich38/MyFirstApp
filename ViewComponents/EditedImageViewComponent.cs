@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.IO;
 using System.Threading.Tasks;
-using MyFirstApp.ViewModels;
+using ImageEditionApp.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 
@@ -12,7 +12,7 @@ using ImageSharp;
 using ImageSharp.Formats;
 using ImageSharp.Processing;
 
-namespace MyFirstApp.ViewComponents
+namespace ImageEditionApp.ViewComponents
 {
     public class EditedImageViewComponent : ViewComponent
     {

@@ -9,13 +9,13 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 
-using MyFirstApp.ViewModels;
+using ImageEditionApp.ViewModels;
 
 using ImageSharp;
 using ImageSharp.Formats;
 using ImageSharp.Processing;
 
-namespace MyFirstApp.Controllers
+namespace ImageEditionApp.Controllers
 {
     public class HomeController : Controller
     {

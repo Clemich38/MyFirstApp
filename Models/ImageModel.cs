@@ -1,6 +1,6 @@
 using System;
 
-namespace MyFirstApp.ViewModels
+namespace ImageEditionApp.ViewModels
 {
   public class ImageModel
   {

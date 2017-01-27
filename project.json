@@ -78,6 +78,6 @@
   },
 
   "tooling": {
-    "defaultNamespace": "MyFirstApp"
+    "defaultNamespace": "ImageEditionApp"
   }
 }
